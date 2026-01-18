@@ -1,0 +1,1 @@
+Extract key clauses (termination, confidentiality, governing law, payment terms) and return JSON list.
