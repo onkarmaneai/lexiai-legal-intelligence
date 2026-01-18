@@ -1,0 +1,1 @@
+Extract entities (parties, people, dates, locations, monetary values) and return JSON list.

@@ -6,4 +6,9 @@ from app.agents.base import AgentResult, AwsStrandsAgent
 
 class LegalClassifierAgent(AwsStrandsAgent):
     def run(self, document_path: str, context: dict) -> AgentResult:
-        return AgentResult({"is_legal": True})
+        document_text = self._read_document(document_path)
+        prompt = self._render_prompt("classify_legal.txt", context, document_text)
+        result = self._agent(prompt)
+        raw_text = getattr(result, "message", str(result))
+        payload = self._parse_json(raw_text, {"is_legal": False})
+        return AgentResult({"is_legal": bool(payload.get("is_legal", False))})

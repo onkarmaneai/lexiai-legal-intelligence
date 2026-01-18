@@ -6,4 +6,9 @@ from app.agents.base import AgentResult, AwsStrandsAgent
 
 class ContractTypeAgent(AwsStrandsAgent):
     def run(self, document_path: str, context: dict) -> AgentResult:
-        return AgentResult({"contract_type": "NDA"})
+        document_text = self._read_document(document_path)
+        prompt = self._render_prompt("detect_contract_type.txt", context, document_text)
+        result = self._agent(prompt)
+        raw_text = getattr(result, "message", str(result))
+        payload = self._parse_json(raw_text, {"contract_type": "Unknown"})
+        return AgentResult({"contract_type": payload.get("contract_type", "Unknown")})
