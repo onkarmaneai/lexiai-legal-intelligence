@@ -2,24 +2,26 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+
+from pydantic import BaseModel
 
 from app.core.config import settings
 
 
-@dataclass
-class LLMResult:
+class LLMResult(BaseModel):
     text: str
     metadata: dict[str, str] | None = None
 
 
 class LLMClient:
     def generate(self, prompt: str) -> LLMResult:
+        """Generate text from a prompt using the configured LLM."""
         raise NotImplementedError
 
 
 class StubLLMClient(LLMClient):
     def generate(self, prompt: str) -> LLMResult:
+        """Return a placeholder response for tests or local runs."""
         return LLMResult(text="stub-response", metadata={"provider": "stub"})
 
 
@@ -30,12 +32,14 @@ class LangChainLLMClient(LLMClient):
         model: str | None = None,
         temperature: float | None = None,
     ) -> None:
+        """Create a LangChain-backed client for OpenAI or Bedrock."""
         self.provider = (provider or settings.llm_provider).lower()
         self.model = model or settings.llm_model
         self.temperature = temperature if temperature is not None else settings.llm_temperature
         self._client = self._build_client()
 
     def _build_client(self):
+        """Construct the provider-specific LangChain client."""
         if self.provider == "openai":
             from langchain_openai import ChatOpenAI
 
@@ -55,6 +59,7 @@ class LangChainLLMClient(LLMClient):
         raise ValueError(f"Unsupported LLM provider: {self.provider}")
 
     def generate(self, prompt: str) -> LLMResult:
+        """Invoke the LLM and normalize its response."""
         response = self._client.invoke(prompt)
         text = getattr(response, "content", str(response))
         return LLMResult(

@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+
+from pydantic import BaseModel
 
 
-@dataclass(frozen=True)
-class Settings:
+class Settings(BaseModel):
     api_title: str = os.getenv("API_TITLE", "LexiAI Legal Intelligence")
     broker_url: str = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
     backend_url: str = os.getenv("CELERY_BACKEND_URL", "redis://redis:6379/1")
@@ -23,6 +23,18 @@ class Settings:
     llm_provider: str = os.getenv("LLM_PROVIDER", "openai")
     llm_model: str = os.getenv("LLM_MODEL", "gpt-4o-mini")
     llm_temperature: float = float(os.getenv("LLM_TEMPERATURE", "0.2"))
+    mcp_command: str = os.getenv("MCP_COMMAND", "")
+    mcp_args: str = os.getenv("MCP_ARGS", "")
+    mcp_prompt_command: str = os.getenv("MCP_PROMPT_COMMAND", "")
+    mcp_prompt_args: str = os.getenv("MCP_PROMPT_ARGS", "")
+    mcp_schema_command: str = os.getenv("MCP_SCHEMA_COMMAND", "")
+    mcp_schema_args: str = os.getenv("MCP_SCHEMA_ARGS", "")
+    mcp_routing_command: str = os.getenv("MCP_ROUTING_COMMAND", "")
+    mcp_routing_args: str = os.getenv("MCP_ROUTING_ARGS", "")
+    mcp_schema_legal_classification: str = os.getenv("MCP_SCHEMA_LEGAL_CLASSIFICATION", "")
+    mcp_schema_contract_type: str = os.getenv("MCP_SCHEMA_CONTRACT_TYPE", "")
+    mcp_schema_clause_extraction: str = os.getenv("MCP_SCHEMA_CLAUSE_EXTRACTION", "")
+    mcp_schema_ner: str = os.getenv("MCP_SCHEMA_NER", "")
 
 
 settings = Settings()

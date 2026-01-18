@@ -38,7 +38,7 @@ Celery Orchestrator Task
   |
   +--> Agent 4: Clause Extraction (AWS Strands, LLM)
   |
-  +--> Agent 5: NER (AWS Strands, DL model)
+  +--> Agent 5: NER (Transformers DL model)
   |
   v
 ElasticSearch
@@ -69,8 +69,8 @@ Extracts clause types such as termination, confidentiality, governing law, payme
 }
 ```
 
-### 🧠 Agent 5: NER Agent (AWS Strands + DL Model)
-Extracts parties, persons, dates, locations, monetary values.
+### 🧠 Agent 5: NER Agent (Transformers DL Model)
+Extracts parties, persons, dates, locations, monetary values using a Transformer-based NER pipeline.
 
 ## 5. ElasticSearch Index Design
 ### 📌 Index 1: `legal_clauses_index`
@@ -96,11 +96,11 @@ Extracts parties, persons, dates, locations, monetary values.
 ```
 
 ## 6. FastAPI + Celery + Redis Organization
-FastAPI handles uploads asynchronously and returns task IDs immediately:
+FastAPI handles uploads asynchronously and returns task IDs immediately. You can set `extraction_mode` to `all` (default) or `ner-only`:
 ```python
 @app.post("/documents")
 async def upload_document():
-    task = process_legal_document.delay(doc_path)
+    task = process_legal_document.delay(doc_path, extraction_mode="all")
     return {"task_id": task.id}
 ```
 
@@ -172,7 +172,7 @@ Introduce MCP servers for:
 - **Schema/ontology registry**: CUAD taxonomy and clause definitions.
 - **Model routing**: select LLM providers based on tenant or data sensitivity.
 
-MCP allows agents to fetch prompts, schemas, or routing rules dynamically without redeploying code.
+MCP allows agents to fetch prompts, schemas, or routing rules dynamically without redeploying code. This implementation uses the Strands MCP client with stdio server configs.
 
 ## 11. Full Folder Structure (Proposed)
 ```
@@ -331,7 +331,7 @@ Design Requirements:
 - Automatic file deletion after successful processing
 - Detailed logging stored in PostgreSQL
 - Docker-compose setup
-- All agents implemented in AWS Strands
+- Prompt-driven agents implemented in AWS Strands; NER uses a Transformers model
 - MCP servers introduced where needed for prompt/schema/routing management
 
 Code Quality:
