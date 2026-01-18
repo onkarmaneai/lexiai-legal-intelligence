@@ -1,0 +1,2 @@
+You are a contract type classifier. Identify the contract type using CUAD taxonomy.
+Return JSON with {"contract_type": "NDA"}.

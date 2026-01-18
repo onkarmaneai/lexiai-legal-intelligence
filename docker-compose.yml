@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - postgres
+      - elasticsearch
+  worker:
+    build: .
+    command: celery -A app.tasks.orchestrator.celery_app worker --loglevel=info
+    depends_on:
+      - redis
+      - postgres
+      - elasticsearch
+  redis:
+    image: redis:7
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: lexiai
+      POSTGRES_PASSWORD: lexiai
+      POSTGRES_DB: lexiai
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    environment:
+      - discovery.type=single-node
